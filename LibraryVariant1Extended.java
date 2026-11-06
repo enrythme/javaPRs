@@ -20,20 +20,35 @@ public class LibraryVariant1Extended {
             int choice = readInt("Выбор: ");
             try {
                 if (choice == 0) return;
+                // Задание: показать каталог изданий.
                 if (choice == 1) library.printPublications();
+                // Задание: показать читателей и число их активных выдач.
                 else if (choice == 2) library.printReaders();
+                // Задание: выдать издание с проверкой доступности и ограничений.
                 else if (choice == 3) library.lend(readLine("Инвентарный номер: "), readLine("ID читателя: "), readLine("Место (абонемент/читальный зал): "));
+                // Задание: принять издание и рассчитать штраф.
                 else if (choice == 4) library.returnLoan(readLine("Инвентарный номер: "), readLine("ID читателя: "));
+                // Задание: продлить выдачу не более двух раз.
                 else if (choice == 5) library.renew(readLine("Инвентарный номер: "), readLine("ID читателя: "));
+                // Задание: найти издание по подстроке названия или автору.
                 else if (choice == 6) library.search(readLine("Подстрока названия или автор: "));
+                // Задание: отсортировать издания по году и названию.
                 else if (choice == 7) library.printSorted();
+                // Задание: сформировать отчёт о должниках и штрафах.
                 else if (choice == 8) library.printDebtors();
+                // Задание: показать историю выдач читателя.
                 else if (choice == 9) library.printHistory(readLine("ID читателя: "));
+                // Задание: показать пять самых популярных изданий.
                 else if (choice == 10) library.printPopular();
+                // Задание: сохранить данные в файл.
                 else if (choice == 11) library.save(readLine("Имя файла: "));
+                // Задание: загрузить данные из файла.
                 else if (choice == 12) library.load(readLine("Имя файла: "));
+                // Задание: добавить читателя.
                 else if (choice == 13) library.addReader(new Reader(readLine("ID: "), readLine("Имя: ")));
+                // Задание: изменить данные издания.
                 else if (choice == 14) library.editPublication(readLine("Инвентарный номер: "), readLine("Новое название: "), readInt("Новый год: "), readLine("Новый автор: "));
+                // Задание: удалить издание.
                 else if (choice == 15) library.removePublication(readLine("Инвентарный номер: "));
                 else System.out.println("Нет такого пункта меню");
             } catch (LibraryException | NumberFormatException e) {
@@ -45,6 +60,7 @@ public class LibraryVariant1Extended {
     private static int readInt(String prompt) { while (true) { System.out.print(prompt); try { return Integer.parseInt(INPUT.nextLine().trim()); } catch (NumberFormatException e) { System.out.println("Введите целое число"); } } }
     private static String readLine(String prompt) { System.out.print(prompt); return INPUT.nextLine().trim(); }
 
+    // Абстрактная модель издания с полиморфным сроком выдачи и штрафом.
     private abstract static class Publication {
         private final String inventoryId;
         private String title;
@@ -68,18 +84,21 @@ public class LibraryVariant1Extended {
         private String encode() { return type() + "\t" + inventoryId + "\t" + title + "\t" + year + "\t" + author + "\t" + available; }
     }
 
+    // Книга с тарифом штрафа для книг.
     private static final class Book extends Publication {
         private Book(String id, String title, int year, String author, int days) { super(id, title, year, author); }
         @Override protected int finePerDay() { return 20; }
         @Override protected int loanDays() { return 14; }
         @Override protected String type() { return "BOOK"; }
     }
+    // Журнал с тарифом штрафа для журналов.
     private static final class Magazine extends Publication {
         private Magazine(String id, String title, int year, String author, int days) { super(id, title, year, author); }
         @Override protected int finePerDay() { return 10; }
         @Override protected int loanDays() { return 7; }
         @Override protected String type() { return "MAGAZINE"; }
     }
+    // Диссертация с ограничением выдачи в читальный зал.
     private static final class Dissertation extends Publication {
         private Dissertation(String id, String title, int year, String author, int days) { super(id, title, year, author); }
         @Override protected int finePerDay() { return 50; }
@@ -87,6 +106,7 @@ public class LibraryVariant1Extended {
         @Override protected String type() { return "DISSERTATION"; }
     }
 
+    // Читатель хранит историю выдач.
     private static final class Reader {
         private final String id;
         private final String name;
@@ -99,6 +119,7 @@ public class LibraryVariant1Extended {
         @Override public int hashCode() { return id.hashCode(); }
     }
 
+    // Выдача хранит сроки, продления и дату возврата.
     private static final class Loan {
         private final Reader reader;
         private final Publication publication;
@@ -112,6 +133,7 @@ public class LibraryVariant1Extended {
         @Override public String toString() { return reader.name + " | " + publication + " | " + issued + " - " + due + (returned == null ? "" : " | возврат " + returned) + " | штраф " + fine(LocalDate.now()); }
     }
 
+    // Менеджер библиотечного каталога, читателей и выдач на массивах.
     private static final class Library {
         private Publication[] publications = new Publication[0];
         private Reader[] readers = new Reader[0];
